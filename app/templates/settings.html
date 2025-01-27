@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('home') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </nav>
+    <div class="settings-container">
+        <h2>Settings</h2>
+        {% if user %}
+            <div class="user-info">
+                <h3>Hi, {{ user.username }}!</h3>
+                <div class="stats">
+                    <div class="stat-item">
+                        <label>Score:</label>
+                        <span>{{ user.score }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <label>Level:</label>
+                        <span>{{ user.level }}</span>
+                    </div>
+                </div>
+            </div>
+            {% if patterns %}
+                <div class="history-section">
+                    <h3>Pattern History</h3>
+                    <div class="pattern-history">
+                        {% for pattern in patterns %}
+                            <div class="pattern-item">
+                                <p class="pattern-sequence">{{ pattern.sequence }}</p>
+                                <p class="pattern-solution">{{ pattern.solution }}</p>
+                                <p class="pattern-date">{{ pattern.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="button logout-button">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <div class="login-prompt">
+                <p>Sign in to save your progress and patterns!</p>
+                <div class="auth-buttons">
+                    <a href="{{ url_for('login') }}" class="button">Login</a>
+                    <a href="{{ url_for('register') }}" class="button">Register</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

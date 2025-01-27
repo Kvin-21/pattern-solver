@@ -1,0 +1,7 @@
+flask
+flask-sqlalchemy
+python-dotenv
+pymongo
+bcrypt
+gunicorn
+dnspython
