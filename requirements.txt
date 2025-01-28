@@ -5,3 +5,4 @@ bcrypt
 numpy
 gunicorn
 flask-sitemap
+flask-compress
