@@ -4,3 +4,4 @@ python-dotenv
 bcrypt
 numpy
 gunicorn
+flask-sitemap
