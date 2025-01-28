@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pattern Solver App</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8865824078359992"
-     crossorigin="anonymous"></script>
+    <title>Pattern Solver - Solve Mathematical Patterns Online</title>
+    <meta name="description" content="Pattern Solver helps you identify and solve complex mathematical patterns with ease. Explore our tools and start solving patterns now!">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8865824078359992" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KJ1F6MSDJG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-KJ1F6MSDJG');
+    </script>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KJ1F6MSDJG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KJ1F6MSDJG');
-</script>
 <body>
     <div class="settings-icon">
         <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i></a>
@@ -27,6 +26,8 @@
             <h1>Pattern Solver</h1>
             {% if user %}
                 <p>Welcome back, {{ user.username }}!</p>
+            {% else %}
+                <p>Discover patterns and play our fun pattern-solving game!</p>
             {% endif %}
             <div class="button-container">
                 <a href="{{ url_for('game') }}" class="button game-button">
@@ -43,13 +44,13 @@
         <!-- AdSense Ad Placement -->
         <div class="ad-container">
             <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-8865824078359992"
-                 data-ad-slot="6370524730"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                style="display:block"
+                data-ad-client="ca-pub-8865824078359992"
+                data-ad-slot="6370524730"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
             <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
     </div>
