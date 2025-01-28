@@ -7,6 +7,7 @@ import numpy as np
 from math import sqrt, pow
 import re
 from bson.objectid import ObjectId
+import datetime
 
 # Load environment variables
 load_dotenv()
@@ -310,17 +311,17 @@ def game():
             session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(user.get('level', 1) if user else 1)
 
             return render_template('game.html', pattern=session['pattern'], 
-                                success=f"Correct! Score: {user.score if user else 'Not logged in'}", user=user)
+                                success=f"Correct! Score: {user.get('score', 0) if user else 'Not logged in'}", user=user)
         else:
             session['tries'] += 1
             if session['tries'] >= 3:
                 session['tries'] = 0
                 if user:
-                    user.score = user.level_score  # Reset score to level start
+                    user['score'] = user.get('level_score', 0)  # Reset score to level start
                     
                 
                 # Store current pattern info for error message
-                current_level = user.level if user else 1
+                current_level = user.get('level', 1) if user else 1
                 correct_answer = session['correct_answer']
                 explanation = session['explanation']
                 pattern_name = session['pattern_name']
@@ -337,7 +338,7 @@ def game():
                                 error=f"Wrong! Tries left: {3-session['tries']}", user=user)
     
     # Initial pattern generation or page refresh
-    current_level = user.level if user else 1
+    current_level = user.get('level', 1) if user else 1
     session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(current_level)
     session['tries'] = 0
     return render_template('game.html', pattern=session['pattern'], user=user)
@@ -375,10 +376,12 @@ def solver():
                 
                 if user:
                             patterns_collection.insert_one({
-                                'user_id': ObjectId(session['user_id']),
+                                'user_id': ObjectId(session['user_id']) if user else None,
                                 'sequence': pattern_str,
-                                'solution': f"Type: {pattern_type}, Next terms: {next_terms}"
+                                'solution': f"Type: {pattern_type}, Next terms: {next_terms}",  # Missing comma here
+                                'timestamp': datetime.datetime.now()
                             })
+
 
 
                 

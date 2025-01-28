@@ -21,11 +21,11 @@
                 <div class="stats">
                     <div class="stat-item">
                         <label>Score:</label>
-                        <span>{{ user.score }}</span>
+                        <span>{{ user.get('score', 0) }}</span>
                     </div>
                     <div class="stat-item">
                         <label>Level:</label>
-                        <span>{{ user.level }}</span>
+                        <span>{{ user.get('level', 1) }}</span>
                     </div>
                 </div>
             </div>
@@ -35,9 +35,15 @@
                     <div class="pattern-history">
                         {% for pattern in patterns %}
                             <div class="pattern-item">
-                                <p class="pattern-sequence">{{ pattern.sequence }}</p>
-                                <p class="pattern-solution">{{ pattern.solution }}</p>
-                                <p class="pattern-date">{{ pattern.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                                <p class="pattern-sequence">{{ pattern.get('sequence', '') }}</p>
+                                <p class="pattern-solution">{{ pattern.get('solution', '') }}</p>
+                                <p class="pattern-date">
+                                    {% if pattern.timestamp %}
+                                        {{ pattern.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        No date available
+                                    {% endif %}
+                                </p>
                             </div>
                         {% endfor %}
                     </div>
