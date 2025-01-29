@@ -432,5 +432,10 @@ def serve_verification_file():
 def serve_sitemap():
     return send_from_directory('static', 'sitemap.xml')
 
+@app.route('/ads.txt')
+def serve_ads_file():
+    return "google.com, pub-8865824078359992, DIRECT, f08c47fec0942fa0"
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
