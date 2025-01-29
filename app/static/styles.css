@@ -323,7 +323,8 @@ input {
 }
 
 .ad-container {
-    margin: 20px auto;
-    max-width: 800px;
-    text-align: center;
+    width: 100%; /* or a specific width, like 300px */
+    min-height: 250px; /* or a specific height */
+    display: block;
+    overflow: hidden;
 }

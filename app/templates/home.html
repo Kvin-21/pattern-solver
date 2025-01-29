@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pattern Solver App</title>
+    <title>Pattern Solver - Solve Mathematical Patterns Online</title>
+    <meta name="description" content="Pattern Solver helps you identify and solve complex mathematical patterns with ease. Explore our tools and start solving patterns now!">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8865824078359992"
      crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NM39CDFKDW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NM39CDFKDW');
+    </script>
 </head>
 <body>
     <div class="settings-icon">
@@ -18,6 +28,8 @@
             <h1>Pattern Solver</h1>
             {% if user %}
                 <p>Welcome back, {{ user.username }}!</p>
+            {% else %}
+                <p>Discover patterns and play our fun pattern-solving game!</p>
             {% endif %}
             <div class="button-container">
                 <a href="{{ url_for('game') }}" class="button game-button">
@@ -36,7 +48,7 @@
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-8865824078359992"
-                 data-ad-slot="6370524730"
+                 data-ad-slot="3631615093"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
             <script>

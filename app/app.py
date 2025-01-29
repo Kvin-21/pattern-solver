@@ -8,6 +8,8 @@ from math import sqrt, pow
 import re
 from bson.objectid import ObjectId
 import datetime
+from flask_sitemap import Sitemap
+from flask_compress import Compress
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +28,18 @@ patterns_collection = db['patterns']
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
+ext = Sitemap(app)
+
+@ext.register_generator
+def index():
+    yield 'home', {}
+    yield 'login', {}
+    yield 'register', {}
+    yield 'game', {}
+    yield 'solver', {}
+    yield 'profile', {}
+
+Compress(app)
 
 # Password hashing functions
 def hash_password(password):
