@@ -428,6 +428,9 @@ def profile():
 def serve_verification_file():
     return "google-site-verification: google925b0ffc084ab8b1.html"
 
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    return send_from_directory('static', 'sitemap.xml')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
