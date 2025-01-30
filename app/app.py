@@ -438,7 +438,8 @@ def serve_ads_file():
 
 @app.route('/.well-known/pki-validation/7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
 def serve_val():
-    return send_from_directory('static', '7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
+    static_folder = os.path.join(app.root_path, 'static')
+    return send_from_directory(static_folder, '7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
