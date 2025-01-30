@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, url_for, flash, send_from_directory
 import bcrypt
 import numpy as np
 from math import sqrt, pow
@@ -438,8 +438,11 @@ def serve_ads_file():
 
 @app.route('/.well-known/pki-validation/7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
 def serve_val():
-    static_folder = os.path.join(app.root_path, 'static')
-    return send_from_directory(static_folder, '7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
+    return send_from_directory(
+        'static',
+        '7D3D3BA0B414B564BF03E299F5FCB2D3.txt',
+        mimetype='text/plain'
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
