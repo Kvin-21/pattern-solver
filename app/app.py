@@ -436,8 +436,8 @@ def serve_sitemap():
 def serve_ads_file():
     return "google.com, pub-8865824078359992, DIRECT, f08c47fec0942fa0"
 
-@app.route('/.well-known/pki-validation/')
-def serve_sitemap():
+@app.route('/.well-known/pki-validation/7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
+def serve_val():
     return send_from_directory('static', '7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
 
 if __name__ == '__main__':
