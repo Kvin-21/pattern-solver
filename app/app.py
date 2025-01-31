@@ -37,7 +37,7 @@ def index():
     yield 'register', {}
     yield 'game', {}
     yield 'solver', {}
-    yield 'profile', {}
+    yield 'settings', {}
 
 Compress(app)
 
@@ -415,14 +415,6 @@ def solver():
             
     return render_template('solver.html', user=user)
 
-@app.route('/profile')
-def profile():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
-    user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
-    patterns = list(patterns_collection.find({'user_id': ObjectId(session['user_id'])}).sort('timestamp', -1).limit(10))
-    return render_template('profile.html', user=user, patterns=patterns)
 
 @app.route('/google925b0ffc084ab8b1.html')
 def serve_verification_file():
