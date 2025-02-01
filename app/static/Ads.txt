@@ -81,3 +81,5 @@ yieldmo.com, 2834292204858450860, DIRECT
 yieldmo.com, 2676856567361380607, DIRECT
 # 21202
 google.com, pub-8865824078359992, DIRECT, f08c47fec0942fa0
+ezoic.ai, cb556f17ec6a33bcff7c7d7b13cdcd35, DIRECT
+ezoic.co.uk, cb556f17ec6a33bcff7c7d7b13cdcd35, DIRECT
