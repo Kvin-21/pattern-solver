@@ -432,6 +432,14 @@ def serve_ads_file():
         mimetype='text/plain'
     )
 
+@app.route('/privacy-policy')
+def serve_ads_file():
+    return send_from_directory(
+        'static',
+        'privacy-policy.txt',
+        mimetype='text/plain'
+    )
+
 @app.route('/robots.txt')
 def serve_rob():
     return "Sitemap: https://pattern-solver-app.azurewebsites.net/sitemap.xml"
