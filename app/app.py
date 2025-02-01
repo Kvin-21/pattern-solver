@@ -433,12 +433,48 @@ def serve_ads_file():
     )
 
 @app.route('/privacy-policy')
-def serve_pp_file():
-    return send_from_directory(
-        'static',
-        'privacy-policy.txt',
-        mimetype='text/plain'
-    )
+def privacy_policy():
+    return render_template('privacy-policy.html')
+
+# New route for cookie consent management
+@app.route('/cookie-consent')
+def cookie_consent():
+    # Add ez_force_cookie_consent=1 parameter to the current URL
+    return redirect(request.referrer + ('&' if '?' in request.referrer else '?') + 'ez_force_cookie_consent=1')
+
+# Modified base template to include Ezoic scripts
+@app.context_processor
+def inject_ezoic_scripts():
+    return {
+        'ezoic_scripts': """
+            <!-- Ezoic Privacy Policy -->
+            <span id="ezoic-privacy-policy-embed"></span>
+            
+            <!-- Ezoic Cookie Consent Callback -->
+            <script>
+                function EzConsentCallback(consent) {
+                    if(consent.marketing) {
+                        // Add marketing-related code here
+                        console.log('Marketing consent granted');
+                    }
+                    if(consent.statistics) {
+                        // Add analytics-related code here
+                        console.log('Statistics consent granted');
+                    }
+                }
+            </script>
+            
+            <!-- Ezoic Non-TCF Vendor Consent Listener -->
+            <script>
+                function ezoicPubConsentListener(allowedPurposes, allowedSpecialFeatures, vendors) {
+                    if ((vendors.consent.indexOf(3) != -1) && (allowedPurposes.indexOf("1") != -1)) {
+                        // Add vendor-specific code here
+                        console.log('Vendor consent granted');
+                    }
+                }
+            </script>
+        """
+    }
 
 @app.route('/robots.txt')
 def serve_rob():
