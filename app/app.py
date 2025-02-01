@@ -434,7 +434,10 @@ def serve_ads_file():
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    return render_template('privacy-policy.html')
+    user = None
+    if 'user_id' in session:
+        user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
+    return render_template('privacy-policy.html', user=user)
 
 # New route for cookie consent management
 @app.route('/cookie-consent')
