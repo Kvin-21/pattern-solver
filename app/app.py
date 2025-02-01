@@ -426,7 +426,11 @@ def serve_sitemap():
 
 @app.route('/ads.txt')
 def serve_ads_file():
-    return "google.com, pub-8865824078359992, DIRECT, f08c47fec0942fa0"
+    return send_from_directory(
+        'static',
+        'Ads.txt',
+        mimetype='text/plain'
+    )
 
 @app.route('/robots.txt')
 def serve_rob():
