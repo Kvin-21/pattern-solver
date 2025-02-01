@@ -433,7 +433,7 @@ def serve_ads_file():
     )
 
 @app.route('/privacy-policy')
-def serve_ads_file():
+def serve_pp_file():
     return send_from_directory(
         'static',
         'privacy-policy.txt',
