@@ -481,7 +481,11 @@ def inject_ezoic_scripts():
 
 @app.route('/robots.txt')
 def serve_rob():
-    return "Sitemap: https://pattern-solver-app.azurewebsites.net/sitemap.xml"
+    return """
+User-agent: *
+Allow: /
+Sitemap: https://pattern-solver-app.azurewebsites.net/sitemap.xml
+"""
 
 @app.route('/.well-known/pki-validation/7D3D3BA0B414B564BF03E299F5FCB2D3.txt')
 def serve_val():
