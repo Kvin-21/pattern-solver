@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback - Pattern Solver{% endblock %}
+{% block description %}Share your feedback and suggestions to help improve Pattern Solver.{% endblock %}
+
+{% block content %}
+    <div class="feedback-box">
+        <h1>Feedback</h1>
+        <p>We appreciate your feedback! Help improve Pattern Solver by sharing your thoughts and suggestions.</p>
+
+        <form method="POST" class="feedback-form">
+            <div class="form-group">
+                <label for="feedback">Your Feedback:</label>
+                <textarea id="feedback" name="feedback" placeholder="Enter your feedback here" required></textarea>
+            </div>
+            <button type="submit" class="auth-button">Submit Feedback</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message success">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endblock %}

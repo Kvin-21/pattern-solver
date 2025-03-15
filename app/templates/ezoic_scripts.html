@@ -1,0 +1,26 @@
+<!-- Ezoic Privacy Policy -->
+<span id="ezoic-privacy-policy-embed"></span>
+
+<!-- Ezoic Cookie Consent Callback -->
+<script>
+    function EzConsentCallback(consent) {
+        if (consent.marketing) {
+            // Add marketing-related code here
+            console.log('Marketing consent granted');
+        }
+        if (consent.statistics) {
+            // Add analytics-related code here
+            console.log('Statistics consent granted');
+        }
+    }
+</script>
+
+<!-- Ezoic Non-TCF Vendor Consent Listener -->
+<script>
+    function ezoicPubConsentListener(allowedPurposes, allowedSpecialFeatures, vendors) {
+        if ((vendors.consent.indexOf(3) != -1) && (allowedPurposes.indexOf("1") != -1)) {
+            // Add vendor-specific code here
+            console.log('Vendor consent granted');
+        }
+    }
+</script>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{% endblock %}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    {% if request.endpoint != 'home' %}
+    <div class="navbar">
+        {% if request.endpoint == 'blog_post' %}
+        <a href="{{ url_for('blog') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        {% elif request.endpoint == 'blog' %}
+        <a href="{{ url_for('home') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        {% else %}
+        <a href="{{ url_for('home') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="navbar" style="justify-content: flex-end;">
+    </div>
+    {% endif %}
+
+    <!-- Settings Icon -->
+    <div class="settings-icon">
+        <a href="{{ url_for('settings') }}">
+            <i class="fas fa-cog"></i>
+        </a>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Scroll-up button -->
+    {% if request.endpoint == 'pattern_library' or request.endpoint == 'blog' or request.endpoint == 'blog_post' or request.endpoint == 'settings' %}
+    <button class="scroll-up-button">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var btn = $('.scroll-up-button');
+
+            $(window).scroll(function() {
+                if ($(window).scrollTop() > 300) {
+                    btn.addClass('show');
+                } else {
+                    btn.removeClass('show');
+                }
+            });
+
+            btn.on('click', function(e) {
+                e.preventDefault();
+                $('html, body').animate({scrollTop:0}, '300');
+            });
+        });
+    </script>
+</body>
+</html>

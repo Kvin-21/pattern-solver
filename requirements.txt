@@ -6,3 +6,4 @@ numpy
 gunicorn
 flask-sitemap
 flask-compress
+scikit-learn

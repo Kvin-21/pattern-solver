@@ -1,32 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <div class="auth-box">
-            <h1>Login</h1>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="auth-error success">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            <form method="POST" class="auth-form">
-                <input type="text" name="username" placeholder="Enter Username" required>
-                <input type="password" name="password" placeholder="Enter Password" required>
-                <button type="submit" class="auth-button">Login</button>
-            </form>
-            <div class="auth-footer">
-                <p>Don't have an account?</p>
-                <a href="{{ url_for('register') }}" class="auth-button secondary">Register</a>
-            </div>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}Login - Pattern Solver{% endblock %}
+{% block description %}Login to Pattern Solver to save your progress and patterns.{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+    <h1>Login</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="auth-error success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST" class="auth-form">
+        <input type="text" name="username" placeholder="Enter Username" required>
+        <input type="password" name="password" placeholder="Enter Password" required>
+        <button type="submit" class="auth-button">Login</button>
+    </form>
+    <div class="auth-footer">
+        <p>Don't have an account?</p>
+        <a href="{{ url_for('register') }}" class="auth-button secondary">Register</a>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

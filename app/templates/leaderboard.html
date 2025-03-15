@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - Pattern Solver{% endblock %}
+{% block description %}See the top players in the Pattern Game leaderboard.{% endblock %}
+
+{% block content %}
+    <div class="leaderboard-box">
+        <h1>Leaderboard</h1>
+        <div class="leaderboard-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in top_scores %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ entry.username }}</td>
+                        <td>{{ entry.score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

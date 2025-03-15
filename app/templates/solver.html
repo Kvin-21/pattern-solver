@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pattern Solver</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="{{ url_for('home') }}" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <a href="{{ url_for('settings') }}" class="settings-button">
-            <i class="fas fa-cog"></i>
-        </a>
-    </nav>
+{% extends 'base.html' %}
+
+{% block title %}Pattern Solver - Pattern Solver{% endblock %}
+{% block description %}Use the Pattern Solver to identify and solve numerical patterns. Enter a sequence and discover the solution.{% endblock %}
+
+{% block content %}
     <div class="solver-container">
         <h2>Pattern Solver</h2>
         <form method="POST" action="{{ url_for('solver') }}" class="solver-form">
@@ -26,13 +14,13 @@
                 </button>
             </div>
         </form>
-        
+
         {% if error %}
             <div class="message error">{{ error }}</div>
         {% endif %}
 
         {% if pattern_type and next_terms %}
-            <div class="solution-box">
+            <div class="solution-box" style="min-height: 200px; width: 100%;">
                 <h3>Pattern Analysis</h3>
                 <div class="result-group">
                     <label>Original Pattern:</label>
@@ -47,14 +35,16 @@
                     <p>{{ next_terms|join(', ') }}</p>
                 </div>
             </div>
-        {% endif %}
-        
-        {% if not user %}
-            <div class="login-prompt">
-                <p>Sign in to save your patterns!</p>
-                <a href="{{ url_for('login') }}" class="button">Login</a>
+
+            <div style="margin-top: 1rem; text-align: center;">
+            {% if user %}
+                Want to test your skills? <a href="{{ url_for('game') }}" class="button game1-button">Play Game</a>
+            {% else %}
+                Want to test your skills? <a href="{{ url_for('login') }}">Sign in</a> to save your patterns!
+                <a href="{{ url_for('login') }}" class="button auth-button">Login</a>
+            {% endif %}
             </div>
+
         {% endif %}
     </div>
-</body>
-</html>
+{% endblock %}

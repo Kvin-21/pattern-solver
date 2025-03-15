@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog - Pattern Solver{% endblock %}
+{% block description %}Read articles about mathematical patterns, their applications, and related topics on the Pattern Solver blog.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="blog-box">
+        <h1>Pattern Solver Blog</h1>
+        <p>Explore articles about mathematical patterns, their applications, and related topics.</p>
+
+        <div class="blog-list">
+            {% for post_id, post in blog_posts.items() %}
+            <div class="blog-item">
+                <h3><a href="{{ url_for('blog_post', post_id=post_id) }}">{{ post.title }}</a></h3>
+                <p>{{ post.summary }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
