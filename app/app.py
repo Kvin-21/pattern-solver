@@ -6,7 +6,6 @@ from bson.objectid import ObjectId
 import bcrypt
 from math import sqrt
 import numpy as np
-from flask_sitemap import Sitemap
 import re
 import traceback
 from sklearn.linear_model import LinearRegression
@@ -28,16 +27,6 @@ comments_collection = db['comments']
 # Flask app initialization
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
-
-ext = Sitemap(app)
-
-@ext.register_generator
-def index():
-    yield 'home', {}
-    yield 'leaderboard', {}
-
-    for post in range(1, 9):
-        yield 'blog_post', {'post_id': post}
 
 def hash_password(password):
     salt = bcrypt.gensalt()
