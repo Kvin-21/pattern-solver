@@ -423,7 +423,7 @@ def solver():
                         'username': "not logged in",
                         'sequence': pattern_str,
                         'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
-                        'timestamp': datetime.datetime.now()
+                        'timestamp': "na"
                     })
 
                 return render_template('solver.html',
