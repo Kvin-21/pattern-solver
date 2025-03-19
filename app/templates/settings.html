@@ -21,16 +21,6 @@
                 </div>
             </div>
         </div>
-        {% if user.get('rewards') %}
-            <div class="rewards-section">
-                <h3>Rewards</h3>
-                <ul>
-                    {% for reward in user.get('rewards') %}
-                        <li>{{ reward }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
 
         {% if patterns %}
             <div class="history-section">
