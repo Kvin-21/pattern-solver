@@ -418,6 +418,13 @@ def solver():
                         'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
                         'timestamp': datetime.datetime.now()
                     })
+                else:
+                    patterns_collection.insert_one({
+                        'username': "not logged in",
+                        'sequence': pattern_str,
+                        'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
+                        'timestamp': datetime.datetime.now()
+                    })
 
                 return render_template('solver.html',
                                     pattern_type=pattern_type,
