@@ -350,6 +350,13 @@ def game():
                             flash(f"Congratulations! You reached Level {new_level} and unlocked: {reward}")
                 users_collection.update_one({'_id': ObjectId(session['user_id'])}, {'$set': update_data})
 
+            else:
+                patterns_collection.insert_one({
+                    'username': "not logged in",
+                    'sequence': "game",
+                    'solution': "game",
+                    'timestamp': "na"
+                })
             session['tries'] = 0
             session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(user.get('level', 1) if user else 1)
 
