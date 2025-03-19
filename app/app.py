@@ -287,19 +287,6 @@ def settings():
             user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
             patterns = list(patterns_collection.find({'username': user['username']}).sort('timestamp', -1).limit(10))
 
-        if request.method == 'POST':
-            bio = request.form.get('bio')
-            favorite_pattern = request.form.get('favorite_pattern')
-            location = request.form.get('location')
-
-            update_data = {'profile.bio': bio, 'profile.favorite_pattern': favorite_pattern, 'profile.location': location}
-            users_collection.update_one(
-                {'_id': ObjectId(session['user_id'])},
-                {'$set': update_data},
-            )
-            flash('Profile updated successfully!')
-            return redirect(url_for('settings'))
-
         return render_template('settings.html', user=user, patterns=patterns)
    except Exception as e:
         print(traceback.format_exc())
