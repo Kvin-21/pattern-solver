@@ -236,12 +236,6 @@ def register():
                 'level': 1,
                 'level_score':0,
                 'patterns': [],
-                'profile': {
-                    'bio': '',
-                    'favorite_pattern': '',
-                    'location': ''
-                },
-                'rewards': []
             })
             flash('Registration successful! Please login.')
             return redirect(url_for('login'))
@@ -336,18 +330,6 @@ def game():
                 if new_level > old_level:
                     update_data['level'] = new_level
                     update_data['level_score'] = new_score
-                    if new_level == 2:
-                        reward = "Unlocked Pattern Solver Tip #1"
-                    elif new_level == 3:
-                        reward = "Unlocked New Avatar"
-                    else:
-                        reward = None
-                    if reward:
-                        if 'rewards' not in user:
-                            user['rewards'] = []
-                        if reward not in user['rewards']:
-                            update_data['$push'] = {'rewards': reward}
-                            flash(f"Congratulations! You reached Level {new_level} and unlocked: {reward}")
                 users_collection.update_one({'_id': ObjectId(session['user_id'])}, {'$set': update_data})
 
             else:
