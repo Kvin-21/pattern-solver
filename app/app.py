@@ -220,7 +220,14 @@ def register():
             username = request.form.get('username')
             password = request.form.get('password')
 
-            bad_words = ["swearword1", "swearword2", "swearword3"]
+            bad_words = ["anal", "anus", "arse", "ass", "ballsack", "balls", "bastard", "bitch", "biatch", "bloody",
+    "blowjob", "blow job", "bollock", "bollok", "boner", "boob", "bugger", "bum", "butt", "buttplug",
+    "clitoris", "cock", "coon", "crap", "cunt", "damn", "dick", "dildo", "dyke", "fag", "feck",
+    "fellate", "fellatio", "felching", "fuck", "f u c k", "fudgepacker", "fudge packer", "flange",
+    "Goddamn", "God damn", "hell", "homo", "jerk", "jizz", "knobend", "knob end", "labia", "lmao",
+    "lmfao", "muff", "nigger", "nigga", "omg", "penis", "piss", "poop", "prick", "pube", "pussy",
+    "queer", "scrotum", "sex", "shit", "sh1t", "slut", "smegma", "spunk", "tit", "tosser",
+    "turd", "twat", "vagina", "wank", "whore", "wtf"]
             for word in bad_words:
                 if word.lower() in username.lower():
                     return render_template('register.html', error="Username contains inappropriate words.", user=user)
