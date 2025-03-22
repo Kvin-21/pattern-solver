@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
 
 {% block title %}About Us - Pattern Solver{% endblock %}
-{% block description %}Learn about Pattern Solver, and its mission.{% endblock %}
+{% block description %}Learn about Pattern Solver!{% endblock %}
 
 {% block content %}
 <div class="welcome-box">
     <h1>About Pattern Solver</h1>
-    <p>I am dedicated to making pattern recognition accessible and enjoyable for everyone. Whether you're a student, educator, or simply curious, the tools and resources are designed to help you explore the world of mathematical patterns.</p>
     <p>Pattern Solver provides a comprehensive suite of tools, including:</p>
     <ul>
         <li><b>Pattern Solver:</b> Identify and solve number sequences quickly and accurately.</li>
         <li><b>Pattern Game:</b> Test your pattern recognition skills in a fun and engaging game.</li>
         <li><b>Educational Resources:</b> Learn about different pattern types, formulas, and real-world applications.</li>
     </ul>
-    <p>Pattern Solver was created by a passionate mathematician and software developer. My mission is to empower individuals with the knowledge and tools to unlock the secrets of numbers!</p>
     <a href="{{ url_for('home') }}" class="button">Back to Home</a>
 </div>
 {% endblock %}
