@@ -34,7 +34,7 @@
             {% if user %}
                 <p>Score: {{ user.score }} | Level: {{ user.level }}</p>
             {% else %}
-                <p>Want to track your score? <a href="{{ url_for('login') }}">Login</a> or <a href="{{ url_for('register') }}">Register</a></p>
+                <p>Want to track your score and attempt more challenging patterns such as Exponential, Polynomial, Quadratic, Cubic, and more? <a href="{{ url_for('login') }}">Login</a> or <a href="{{ url_for('register') }}">Register</a></p>
             {% endif %}
         </div>
         <div class="button-container">
