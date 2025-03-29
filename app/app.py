@@ -325,6 +325,7 @@ def game():
                     update_data['level'] = new_level
                     update_data['level_score'] = new_score
                 users_collection.update_one({'_id': ObjectId(session['user_id'])}, {'$set': update_data})
+                user = users_collection.find_one({'_id': ObjectId(session['user_id'])}) # Refresh user object
 
             else:
                 patterns_collection.insert_one({
@@ -343,7 +344,10 @@ def game():
             if session['tries'] >= 3:
                 session['tries'] = 0
                 if user:
-                    user['score'] = user.get('level_score', 0)
+                    level_score = user.get('level_score', 0)
+                    update_data = {'score': level_score}
+                    users_collection.update_one({'_id': ObjectId(session['user_id'])}, {'$set': update_data})
+                    user = users_collection.find_one({'_id': ObjectId(session['user_id'])})  # Refresh user object
 
                 current_level = user.get('level', 1) if user else 1
                 correct_answer = session['correct_answer']
