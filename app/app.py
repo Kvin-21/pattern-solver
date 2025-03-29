@@ -331,7 +331,7 @@ def game():
                     'username': "not logged in",
                     'sequence': "game",
                     'solution': "game",
-                    'timestamp': "na"
+                    'timestamp': datetime.datetime.now()
                 })
             session['tries'] = 0
             session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(user.get('level', 1) if user else 1)
@@ -406,7 +406,7 @@ def solver():
                         'username': "not logged in",
                         'sequence': pattern_str,
                         'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
-                        'timestamp': "na"
+                        'timestamp': datetime.datetime.now()
                     })
 
                 return render_template('solver.html',
