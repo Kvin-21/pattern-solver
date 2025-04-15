@@ -10,10 +10,13 @@ import re
 import traceback
 from sklearn.linear_model import LinearRegression
 import json
-print("OEIS file exists:", os.path.exists("app/processed_oeis_data.json"))
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
+
+print("CWD:", os.getcwd())
+print("OEIS file exists:", os.path.exists("app/processed_oeis_data.json"))
+import sys; sys.stdout.flush()
 
 MONGODB_URI = os.getenv('MONGODB_URI')
 SECRET_KEY = os.getenv('SECRET_KEY')
