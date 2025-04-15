@@ -14,10 +14,6 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
-print("CWD:", os.getcwd())
-print("OEIS file exists:", os.path.exists("app/processed_oeis_data.json"))
-import sys; sys.stdout.flush()
-
 MONGODB_URI = os.getenv('MONGODB_URI')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
@@ -33,7 +29,7 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
 ### --- OEIS integration --- ###
-OEIS_CACHE_PATH = os.getenv('OEIS_CACHE_PATH', 'processed_oeis_data.json')
+OEIS_CACHE_PATH = 'app/processed_oeis_data.json'
 
 def load_oeis_cache(cache_path):
     try:
