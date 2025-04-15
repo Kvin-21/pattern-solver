@@ -1,19 +1,23 @@
 name: Deploy to Azure Web App
+
 on:
   push:
     branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code with LFS
+      uses: actions/checkout@v4
       with:
         lfs: true
 
-    - name: List files in app directory
+    - name: Debug LFS hydration
       run: |
         ls -lh app/
-        head -20 app/processed_oeis_data.json || echo "File not found or too large to print"
+        file app/processed_oeis_data.json || echo "No such file"
+        head -20 app/processed_oeis_data.json || echo "File too large or missing"
 
     - name: Set up Python
       uses: actions/setup-python@v2
