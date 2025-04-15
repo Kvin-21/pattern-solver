@@ -4,11 +4,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import bcrypt
-from math import sqrt
+from math import sqrt, isclose
 import numpy as np
 import re
 import traceback
 from sklearn.linear_model import LinearRegression
+import json
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -28,6 +29,234 @@ comments_collection = db['comments']
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
+### --- OEIS integration --- ###
+OEIS_CACHE_PATH = os.getenv('OEIS_CACHE_PATH', 'processed_oeis_data.json')
+
+def load_oeis_cache(cache_path):
+    try:
+        with open(cache_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data
+    except Exception:
+        return None
+
+oeis_data = load_oeis_cache(OEIS_CACHE_PATH)
+
+def get_next_terms_from_data(full_sequence_list, input_sequence_list):
+    len_input = len(input_sequence_list)
+    len_full = len(full_sequence_list)
+    for i in range(len_full - len_input + 1):
+        if full_sequence_list[i : i + len_input] == input_sequence_list:
+            start_index_next = i + len_input
+            end_index_next = start_index_next + 3
+            if end_index_next <= len_full:
+                next_terms = full_sequence_list[start_index_next : end_index_next]
+                return next_terms
+            else:
+                available_terms = full_sequence_list[start_index_next:]
+                return available_terms
+    return []
+
+def search_oeis(user_input_str, processed_data):
+    input_numbers_str = re.findall(r"-?\d+", user_input_str)
+    if not input_numbers_str:
+        return None, None
+    input_numbers_list = [int(n) for n in input_numbers_str]
+    search_pattern_str = "," + ",".join(input_numbers_str) + ","
+    sorted_a_nums = sorted(processed_data.keys(), key=lambda x: int(x[1:]))
+    for a_num in sorted_a_nums:
+        entry = processed_data[a_num]
+        seq_string = entry["sequence_str"]
+        if search_pattern_str in ("," + seq_string):
+            try:
+                full_num_list = [int(n) for n in seq_string.rstrip(',').split(',') if n]
+                next_terms = get_next_terms_from_data(full_num_list, input_numbers_list)
+                if next_terms:
+                    desc = f"OEIS: {entry['description']} ({a_num})"
+                    return desc, next_terms
+            except Exception:
+                continue
+    return None, None
+
+# --- Utility Functions (for pattern) ---
+def normalize_pattern_input(pattern_str):
+    # Accept both comma and space separated, ignore extra whitespace
+    # Accept input like "1,2,3 4, 5" or "1 2 3  4" etc.
+    clean = re.sub(r'[,\s]+', ' ', pattern_str.strip())
+    numbers = re.findall(r'-?\d+', clean)
+    return [int(x) for x in numbers]
+
+def is_perfect_square(n):
+    return isclose(sqrt(n), round(sqrt(n))) and n >= 0
+
+def is_perfect_cube(n):
+    if n < 0:
+        root = round(-abs(n) ** (1/3))
+    else:
+        root = round(n ** (1/3))
+    return isclose(root ** 3, n)
+
+def all_squares(lst):
+    return all(is_perfect_square(x) for x in lst)
+
+def all_cubes(lst):
+    return all(is_perfect_cube(x) for x in lst)
+
+def get_square_roots(lst):
+    return [int(round(sqrt(x))) for x in lst]
+
+def get_cube_roots(lst):
+    def cube_root(n):
+        if n < 0:
+            return -round(abs(n) ** (1/3))
+        else:
+            return round(n ** (1/3))
+    return [cube_root(x) for x in lst]
+
+def is_arithmetic(numbers):
+    if len(numbers) < 2:
+        return False
+    d = numbers[1] - numbers[0]
+    return all(numbers[i+1] - numbers[i] == d for i in range(len(numbers)-1))
+
+def is_geometric(numbers):
+    if len(numbers) < 2 or 0 in numbers:
+        return False
+    r = numbers[1] / numbers[0]
+    return all(isclose(numbers[i+1] / numbers[i], r) for i in range(len(numbers)-1))
+
+def is_fibonacci(numbers):
+    if len(numbers) < 3:
+        return False
+    return all(numbers[i] == numbers[i-1] + numbers[i-2] for i in range(2, len(numbers)))
+
+def next_arith(numbers, n=3):
+    d = numbers[1] - numbers[0]
+    last = numbers[-1]
+    return [last + d * (i+1) for i in range(n)]
+
+def next_geo(numbers, n=3):
+    r = numbers[1] / numbers[0]
+    last = numbers[-1]
+    return [last * (r ** (i+1)) for i in range(n)]
+
+def next_fib(numbers, n=3):
+    seq = numbers[:]
+    for _ in range(n):
+        seq.append(seq[-1] + seq[-2])
+    return seq[-n:]
+
+def is_triangular(numbers):
+    def inv_tri(x):
+        n = (-1 + sqrt(1 + 8*x)) / 2
+        return isclose(n, round(n))
+    return all(inv_tri(x) for x in numbers)
+
+def next_triangular(numbers, n=3):
+    start_n = int(round((-1 + sqrt(1 + 8*numbers[-1]))/2))
+    return [int((start_n + i)*(start_n + i + 1)//2) for i in range(1, n+1)]
+
+def identify_pattern_type(numbers):
+    # 1. Arithmetic (first)
+    if is_arithmetic(numbers):
+        return "Arithmetic sequence", next_arith(numbers)
+    # 2. Fibonacci
+    if is_fibonacci(numbers):
+        return "Fibonacci sequence", next_fib(numbers)
+    # 3. Square (direct, increasing or decreasing)
+    if all_squares(numbers):
+        roots = [round(sqrt(x)) for x in numbers]
+        diffs = [roots[i+1] - roots[i] for i in range(len(roots)-1)]
+        if all(isclose(d, diffs[0], abs_tol=1e-8) for d in diffs):
+            direction = 'decreasing' if diffs[0] < 0 else 'increasing'
+            next_roots = [roots[-1] + diffs[0]*(i+1) for i in range(3)]
+            next_terms = [r**2 for r in next_roots]
+            return f"Square numbers (n², {direction})", next_terms
+    # 4. Cube (direct, increasing or decreasing)
+    if all_cubes(numbers):
+        def cube_root(n):
+            if n < 0:
+                return -round(abs(n) ** (1/3))
+            else:
+                return round(n ** (1/3))
+        roots = [cube_root(x) for x in numbers]
+        diffs = [roots[i+1] - roots[i] for i in range(len(roots)-1)]
+        if all(isclose(d, diffs[0], abs_tol=1e-8) for d in diffs):
+            direction = 'decreasing' if diffs[0] < 0 else 'increasing'
+            next_roots = [roots[-1] + diffs[0]*(i+1) for i in range(3)]
+            next_terms = [r**3 for r in next_roots]
+            return f"Cube numbers (n³, {direction})", next_terms
+    # 5. Square root (direct, increasing or decreasing)
+    if all(is_perfect_square(x) and x >= 0 for x in numbers):
+        sqrt_seq = [int(round(sqrt(x))) for x in numbers]
+        diffs = [sqrt_seq[i+1] - sqrt_seq[i] for i in range(len(sqrt_seq)-1)]
+        if all(isclose(d, diffs[0], abs_tol=1e-8) for d in diffs):
+            direction = 'decreasing' if diffs[0] < 0 else 'increasing'
+            next_roots = [sqrt_seq[-1] + diffs[0]*(i+1) for i in range(3)]
+            next_terms = [r**2 for r in next_roots]
+            return f"Square roots (√n, {direction})", next_terms
+    # 6. Cube root (direct, increasing or decreasing)
+    def cube_root(n):
+        if n < 0:
+            return -round(abs(n) ** (1/3))
+        else:
+            return round(n ** (1/3))
+    if all(is_perfect_cube(x) for x in numbers):
+        cube_seq = [cube_root(x) for x in numbers]
+        diffs = [cube_seq[i+1] - cube_seq[i] for i in range(len(cube_seq)-1)]
+        if all(isclose(d, diffs[0], abs_tol=1e-8) for d in diffs):
+            direction = 'decreasing' if diffs[0] < 0 else 'increasing'
+            next_roots = [cube_seq[-1] + diffs[0]*(i+1) for i in range(3)]
+            next_terms = [r**3 for r in next_roots]
+            return f"Cube roots (³√n, {direction})", next_terms
+    # 7. Geometric (direct)
+    if is_geometric(numbers):
+        return "Geometric sequence", next_geo(numbers)
+    # 8. Triangular (direct)
+    if is_triangular(numbers):
+        return "Triangular numbers", next_triangular(numbers)
+        # 9. OEIS
+    if oeis_data:
+        desc, next_terms = search_oeis(','.join(str(x) for x in numbers), oeis_data)
+        if desc and next_terms:
+            desc = re.sub(r'^OEIS:\s*', '', desc)
+            desc = re.sub(r'\s*\(A\d+\)$', '', desc)
+            return desc, next_terms
+    # 10. Varying geometric
+    ratios = []
+    try:
+        ratios = [numbers[i+1]/numbers[i] for i in range(len(numbers)-1) if numbers[i] != 0]
+    except Exception:
+        ratios = []
+    if len(ratios) >= 2 and len(set(round(r, 6) for r in ratios)) > 1:
+        return f"Geometric sequence with varying ratio (ratios: {[format(r, '.2f') for r in ratios]})", [
+            round(numbers[-1] * ratios[-1], 2),
+            round(numbers[-1] * ratios[-1] * (ratios[-2] if len(ratios) > 1 else ratios[-1]), 2),
+            round(numbers[-1] * ratios[-1] * (ratios[-2] if len(ratios) > 1 else ratios[-1]) * (ratios[-3] if len(ratios) > 2 else ratios[-1]), 2),
+        ]
+    # 11. Polynomial regression
+    degree = min(3, len(numbers)-1)
+    x = np.arange(1, len(numbers)+1)
+    y = np.array(numbers)
+    try:
+        coefs = np.polyfit(x, y, degree)
+        poly = np.poly1d(coefs)
+        next_terms = [float(poly(i)) for i in range(len(numbers)+1, len(numbers)+4)]
+        return f"Polynomial (degree {degree}) regression", [round(x,2) for x in next_terms]
+    except Exception:
+        pass
+    # 12. Machine learning regression fallback
+    try:
+        model = LinearRegression()
+        model.fit(np.array(x).reshape(-1, 1), y)
+        next_terms = [model.predict(np.array([[len(numbers)+i]]))[0] for i in range(1, 4)]
+        return "Machine Learning (Linear Regression)", [round(x, 2) for x in next_terms]
+    except Exception:
+        pass
+    # 13. Unknown
+    return "Unknown pattern", []
+
+# --- Password Hashing ---
 def hash_password(password):
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
@@ -45,173 +274,7 @@ def format_number(num):
         return round(num, 2)
     return num
 
-def linear(x):
-    return x
-
-def square(x):
-    return x**2
-
-def cube(x):
-    return x**3
-
-def exponential(x):
-    return 2**x
-
-def square_root(x):
-    return sqrt(x)
-
-def quadratic(x):
-    return x**2 + x
-
-def cubic_minus(x):
-    return x**3 - x**2
-
-def fibonacci(n):
-    if n <= 0:
-        return 0
-    elif n == 1:
-        return 1
-    else:
-        a, b = 0, 1
-        for _ in range(2, n+1):
-            a, b = b, a + b
-        return b
-
-def is_fibonacci(numbers):
-    if len(numbers) < 3:
-        return False
-    return all(abs(numbers[i] - (numbers[i-1] + numbers[i-2])) < 0.1
-              for i in range(2, len(numbers)))
-
-def next_fibonacci_terms(numbers, count=3):
-    sequence = list(numbers)
-    for _ in range(count):
-        next_num = sequence[-1] + sequence[-2]
-        sequence.append(next_num)
-    return [round(x, 2) for x in sequence[-count:]]
-
-def prod(lst):
-    result = 1
-    for x in lst:
-        result *= x
-    return result
-
-def check_geometric_varying(numbers):
-    if len(numbers) < 3:
-        return False, None
-
-    ratios = [numbers[i]/numbers[i-1] for i in range(1, len(numbers))]
-    ratio_diffs = [ratios[i] - ratios[i-1] for i in range(1, len(ratios))]
-
-    if len(set(round(diff, 6) for diff in ratio_diffs)) == 1:
-        ratio_increment = ratio_diffs[0]
-        next_ratio = ratios[-1] + ratio_increment
-        return True, lambda n: numbers[-1] * next_ratio if n == len(numbers) + 1 else \
-                             numbers[-1] * prod([ratios[-1] + (ratio_increment * i) for i in range(1, n - len(numbers) + 1)])
-    return False, None
-
-def get_pattern_explanation(pattern_type):
-    explanations = {
-        "Linear": "Linear pattern: Each number increases by 1",
-        "Square": "Square numbers: Each number is n²",
-        "Cube": "Cube numbers: Each number is n³",
-        "Exponential": "Powers of 2: Each number is 2ⁿ",
-        "Square Root": "Square root pattern: Each number is √n",
-        "Quadratic": "Quadratic pattern: Each number is n² + n",
-        "Cubic": "Cubic pattern: Each number is n³ - n²",
-        "Fibonacci": "Fibonacci sequence: Each number is the sum of the two preceding numbers"
-    }
-    return explanations.get(pattern_type, "Complex pattern: Try to spot the mathematical relationship")
-
-def identify_pattern_type(numbers):
-    n = len(numbers)
-    x = list(range(1, n + 1))
-
-    if is_fibonacci(numbers):
-        next_terms = next_fibonacci_terms(numbers)
-        return "Fibonacci sequence: each number is the sum of the two preceding numbers", \
-               lambda n: next_fibonacci_terms(numbers, 1)[0] if n == len(numbers) + 1 else \
-                        next_fibonacci_terms(numbers, n - len(numbers))[-1] if n > len(numbers) else \
-                        numbers[n-1]
-
-    if len(set(np.diff(numbers))) == 1:
-        d = numbers[1] - numbers[0]
-        return f"arithmetic sequence: starts at {numbers[0]}, increases by {d}", \
-               lambda n: numbers[0] + (n-1)*d
-
-    if len(numbers) > 1:
-        ratios = [numbers[i]/numbers[i-1] for i in range(1, len(numbers))]
-        if len(set([round(r, 6) for r in ratios])) == 1:
-            r = ratios[0]
-            return f"geometric sequence: starts at {numbers[0]}, multiplies by {round(r,2)}", \
-                   lambda n: numbers[0] * pow(r, n-1)
-
-    if all(abs(i*i - num) < 0.1 for i, num in zip(range(1, n + 1), numbers)):
-        return "square numbers: n²", square
-
-    if all(abs(i**3 - num) < 0.1 for i, num in zip(range(1, n + 1), numbers)):
-        return "cube numbers: n³", cube
-
-    if all(abs(sqrt(i) - num) < 0.1 for i, num in zip(range(1, n + 1), numbers)):
-        return "square roots: √n", square_root
-
-    if all(abs((i*(i+1)/2) - num) < 0.1 for i, num in zip(range(1, n + 1), numbers)):
-        return "triangular numbers: n(n+1)/2", lambda n: n*(n+1)/2
-
-    is_varying_geometric, varying_formula = check_geometric_varying(numbers)
-    if is_varying_geometric:
-        ratios = [round(numbers[i]/numbers[i-1], 2) for i in range(1, len(numbers))]
-        pattern_desc = f"geometric sequence with varying ratio (ratios: {ratios})"
-        return pattern_desc, varying_formula
-
-    coeffs = np.polyfit(x, numbers, min(n-1, 3))
-    poly = np.poly1d(coeffs)
-
-    residuals = [abs(poly(i+1) - num) for i, num in enumerate(numbers)]
-    if max(residuals) < 0.1:
-        return f"polynomial: degree {len(coeffs)-1}", poly
-
-    try:
-        model = LinearRegression()
-        model.fit(np.array(x).reshape(-1, 1), numbers)
-        next_value = model.predict(np.array([[n + 1]]))[0]
-        return "Machine Learning (Linear Regression)", lambda n: model.predict(np.array([[n]]))[0]
-    except Exception as e:
-        print(f"ML Error: {e}")
-        return "unknown pattern", lambda n: None
-
-def generate_pattern(level):
-    patterns = [
-        (linear, "Linear"),
-        (square, "Square"),
-        (cube, "Cube"),
-        (exponential, "Exponential"),
-        (square_root, "Square Root"),
-        (quadratic, "Quadratic"),
-        (cubic_minus, "Cubic"),
-        (fibonacci, "Fibonacci")
-    ]
-
-    pattern_func, pattern_name = patterns[min(level-1, len(patterns)-1)]
-    length = np.random.randint(4, 7)
-
-    start = np.random.randint(1, 11)
-
-    is_ascending = np.random.choice([True, False])
-
-    if is_ascending:
-        sequence = [format_number(float(pattern_func(i))) for i in range(start, start + length)]
-        next_term = format_number(float(pattern_func(start + length)))
-    else:
-        sequence = [format_number(float(pattern_func(i))) for i in range(start + length - 1, start - 1, -1)]
-        next_term = format_number(float(pattern_func(start - 1)))
-
-    if next_term <= 0:
-        return generate_pattern(level)
-
-    explanation = get_pattern_explanation(pattern_name)
-    return sequence, next_term, explanation, pattern_name
-
+# --- Flask routes (all unchanged except solver/game as requested) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     try:
@@ -308,14 +371,15 @@ def game():
     if request.method == 'POST':
         user_guess = request.form.get('guess')
         if not user_guess:
-            return render_template('game.html', pattern=session['pattern'], error="Please enter a guess.", user=user)
-
+            session['game_error'] = "Please enter a guess."
+            return redirect(url_for('game'))
         try:
             user_guess = float(user_guess)
         except ValueError:
-            return render_template('game.html', pattern=session['pattern'], error="Invalid guess format.", user=user)
+            session['game_error'] = "Invalid guess format."
+            return redirect(url_for('game'))
 
-        if abs(user_guess - session['correct_answer']) < 0.1:
+        if abs(user_guess - session.get('correct_answer', 0)) < 0.1:
             if user:
                 new_score = user.get('score', 0) + 10
                 old_level = user.get('level', 1)
@@ -335,12 +399,12 @@ def game():
                     'timestamp': datetime.datetime.now()
                 })
             session['tries'] = 0
+            # Generate new pattern for next round
             session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(user.get('level', 1) if user else 1)
-
-            return render_template('game.html', pattern=session['pattern'],
-                                   success=f"Correct! Score: {user.get('score', 0) if user else 'Not logged in'}", user=user)
+            session['game_success'] = f"Correct! Score: {user.get('score', 0) if user else 'Not logged in'}"
+            return redirect(url_for('game'))
         else:
-            session['tries'] += 1
+            session['tries'] = session.get('tries', 0) + 1
             if session['tries'] >= 3:
                 session['tries'] = 0
                 if user:
@@ -353,20 +417,73 @@ def game():
                 correct_answer = session['correct_answer']
                 explanation = session['explanation']
                 pattern_name = session['pattern_name']
-
                 session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(current_level)
+                session['game_error'] = f"Level reset! The answer was {correct_answer}. This was a {pattern_name} pattern: {explanation}"
+                return redirect(url_for('game'))
+            session['game_error'] = f"Wrong! Tries left: {3-session['tries']}"
+            return redirect(url_for('game'))
 
-                return render_template('game.html',
-                                    pattern=session['pattern'],
-                                    error=f"Level reset! The answer was {correct_answer}. This was a {pattern_name} pattern: {explanation}",
-                                    user=user)
-            return render_template('game.html', pattern=session['pattern'],
-                                error=f"Wrong! Tries left: {3-session['tries']}", user=user)
-
+    # GET
     current_level = user.get('level', 1) if user else 1
-    session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(current_level)
-    session['tries'] = 0
-    return render_template('game.html', pattern=session['pattern'], user=user)
+    if 'pattern' not in session or 'correct_answer' not in session:
+        session['pattern'], session['correct_answer'], session['explanation'], session['pattern_name'] = generate_pattern(current_level)
+        session['tries'] = 0
+    pattern = session['pattern']
+    error = session.pop('game_error', None)
+    success = session.pop('game_success', None)
+    return render_template('game.html', pattern=pattern, error=error, success=success, user=user)
+
+def generate_pattern(level):
+    patterns = [
+        (lambda x: x, "Linear"),
+        (lambda x: x**2, "Square"),
+        (lambda x: x**3, "Cube"),
+        (lambda x: 2**x, "Exponential"),
+        (lambda x: sqrt(x), "Square Root"),
+        (lambda x: x**2 + x, "Quadratic"),
+        (lambda x: x**3 - x**2, "Cubic"),
+        (lambda n: fibonacci(n), "Fibonacci")
+    ]
+
+    pattern_func, pattern_name = patterns[min(level-1, len(patterns)-1)]
+    length = np.random.randint(4, 7)
+    start = np.random.randint(1, 11)
+    is_ascending = np.random.choice([True, False])
+
+    if is_ascending:
+        sequence = [format_number(float(pattern_func(i))) for i in range(start, start + length)]
+        next_term = format_number(float(pattern_func(start + length)))
+    else:
+        sequence = [format_number(float(pattern_func(i))) for i in range(start + length - 1, start - 1, -1)]
+        next_term = format_number(float(pattern_func(start - 1)))
+    if next_term <= 0:
+        return generate_pattern(level)
+    explanation = get_pattern_explanation(pattern_name)
+    return sequence, next_term, explanation, pattern_name
+
+def get_pattern_explanation(pattern_type):
+    explanations = {
+        "Linear": "Linear pattern: Each number increases by 1",
+        "Square": "Square numbers: Each number is n²",
+        "Cube": "Cube numbers: Each number is n³",
+        "Exponential": "Powers of 2: Each number is 2ⁿ",
+        "Square Root": "Square root pattern: Each number is √n",
+        "Quadratic": "Quadratic pattern: Each number is n² + n",
+        "Cubic": "Cubic pattern: Each number is n³ - n²",
+        "Fibonacci": "Fibonacci sequence: Each number is the sum of the two preceding numbers"
+    }
+    return explanations.get(pattern_type, "Complex pattern: Try to spot the mathematical relationship")
+
+def fibonacci(n):
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n+1):
+            a, b = b, a + b
+        return b
 
 @app.route('/solver', methods=['GET', 'POST'])
 def solver():
@@ -374,60 +491,45 @@ def solver():
     if 'user_id' in session:
         user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
 
+    error = None
+    pattern_type = None
+    next_terms = None
+    original_pattern = None
+    pattern_input = ""
+
     if request.method == 'POST':
-        pattern_str = request.form.get('pattern')
+        pattern_input = request.form.get('pattern', '')
         try:
-            numbers = [float(x.strip()) for x in pattern_str.split(',')]
-            if len(numbers) < 3:
-                return render_template('solver.html', error="Please enter at least 3 numbers", user=user)
+            numbers = normalize_pattern_input(pattern_input)
+            if len(numbers) < 2:
+                raise ValueError("Please enter at least two numbers.")
+            pattern_type, next_terms = identify_pattern_type(numbers)
+            original_pattern = numbers
 
-            pattern_type, formula = identify_pattern_type(numbers)
+            # Restore original behavior: save the solved pattern to MongoDB (for user's history/settings)
+            if user:
+                patterns_collection.insert_one({
+                    'username': user['username'],
+                    'sequence': pattern_input,
+                    'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
+                    'timestamp': datetime.datetime.now()
+                })
+            else:
+                patterns_collection.insert_one({
+                    'username': "not logged in",
+                    'sequence': pattern_input,
+                    'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
+                    'timestamp': datetime.datetime.now()
+                })
+        except Exception as ex:
+            error = f"Error: {str(ex)}"
+    elif request.method == 'GET':
+        pattern_input = request.args.get('pattern', '')
 
-            if formula is None:
-                return render_template('solver.html',
-                                    error="Unable to identify a clear pattern in the sequence",
-                                    original_pattern=[format_number(x) for x in numbers],
-                                    user=user)
+    return render_template('solver.html', error=error, pattern_type=pattern_type, next_terms=next_terms,
+                           original_pattern=original_pattern, user=user, pattern_input=pattern_input)
 
-            try:
-                if callable(formula):
-                    next_terms = [float(formula(len(numbers) + i)) for i in range(1, 4)]
-                else:
-                    next_terms = [float(formula(len(numbers) + i)) for i in range(1, 4)]
-
-                next_terms = [format_number(x) for x in next_terms]
-                formatted_original = [format_number(x) for x in numbers]
-
-                if user:
-                    patterns_collection.insert_one({
-                        'username': user['username'],
-                        'sequence': pattern_str,
-                        'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
-                        'timestamp': datetime.datetime.now()
-                    })
-                else:
-                    patterns_collection.insert_one({
-                        'username': "not logged in",
-                        'sequence': pattern_str,
-                        'solution': f"Type: {pattern_type}, Next terms: {next_terms}",
-                        'timestamp': datetime.datetime.now()
-                    })
-
-                return render_template('solver.html',
-                                    pattern_type=pattern_type,
-                                    next_terms=next_terms,
-                                    original_pattern=formatted_original,
-                                    user=user)
-            except (TypeError, ValueError):
-                return render_template('solver.html',
-                                    error="Unable to calculate next terms for this pattern",
-                                    original_pattern=[format_number(x) for x in numbers],
-                                    user=user)
-
-        except (ValueError, ZeroDivisionError) as e:
-            return render_template('solver.html', error=f"Invalid pattern format: {str(e)}", user=user)
-
-    return render_template('solver.html', user=user)
+# --- The rest of your routes remain unchanged! ---
 
 @app.route('/about')
 def about():
@@ -459,7 +561,6 @@ def blog():
         7: {"title": "The Art of Problem Solving: Strategies and Techniques", "date": "2025-02-12", "summary": "Discover effective strategies and techniques for tackling complex problems in various fields."},
         8: {"title": "Mathematics in Nature: Beyond Fibonacci", "date": "2025-02-12", "summary": "Explore the mathematical principles that govern the natural world beyond just the Fibonacci sequence."}
     }
-
     return render_template('blog.html', user=user, blog_posts=blog_posts)
 
 @app.route('/blog/<int:post_id>')

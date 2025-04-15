@@ -8,7 +8,10 @@
         <h2>Pattern Solver</h2>
         <form method="POST" action="{{ url_for('solver') }}" class="solver-form">
             <div class="input-group">
-                <input type="text" name="pattern" placeholder="Enter numbers separated by commas (e.g., 1,2,3,4). The more numbers there are, the more accurate the solver will be!" required>
+                <input type="text" name="pattern"
+                       value="{{ pattern_input|default('') }}"
+                       placeholder="Enter numbers separated by commas or spaces (e.g., 1,2,3,4 or 1 2 3 4). The more numbers there are, the more accurate the solver will be!"
+                       required>
                 <button type="submit" class="submit-button">
                     <i class="fas fa-calculator"></i>
                 </button>
