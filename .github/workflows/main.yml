@@ -8,12 +8,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        lfs: true  # <-- Recommended! See below
-
-    - name: Install Git LFS and pull files
-      run: |
-        git lfs install
-        git lfs pull
+        lfs: true
 
     - name: List files in app directory
       run: |
