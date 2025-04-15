@@ -10,7 +10,7 @@ import re
 import traceback
 from sklearn.linear_model import LinearRegression
 import json
-
+print("OEIS file exists:", os.path.exists("app/processed_oeis_data.json"))
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
