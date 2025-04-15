@@ -31,6 +31,20 @@ app.secret_key = SECRET_KEY
 ### --- OEIS integration --- ###
 OEIS_CACHE_PATH = 'app/processed_oeis_data.json'
 
+with open('app/processed_oeis_data.json', 'r', encoding='utf-8') as f:
+    oeis_data = json.load(f)
+print("OEIS loaded, keys:", list(oeis_data.keys())[:3])
+first = list(oeis_data.items())[0]
+print("First OEIS entry:", first)
+print("OEIS entries count:", len(oeis_data))
+
+try:
+    with open('app/processed_oeis_data.json', 'r', encoding='utf-8') as f:
+        oeis_data = json.load(f)
+except Exception as e:
+    print("Failed to load OEIS JSON:", e)
+    oeis_data = {}
+
 def load_oeis_cache(cache_path):
     try:
         with open(cache_path, 'r', encoding='utf-8') as f:
