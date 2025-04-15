@@ -7,13 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        lfs: true  # <-- Recommended! See below
 
-    - name: Install Git LFS
+    - name: Install Git LFS and pull files
       run: |
-        sudo apt-get update
-        sudo apt-get install git-lfs
         git lfs install
         git lfs pull
+
+    - name: List files in app directory
+      run: |
+        ls -lh app/
+        head -20 app/processed_oeis_data.json || echo "File not found or too large to print"
 
     - name: Set up Python
       uses: actions/setup-python@v2
