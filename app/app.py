@@ -637,6 +637,14 @@ def serve_verification_file():
         print(traceback.format_exc())
         return "Internal Server Error", 500
 
+@app.route('/471cae572a7e45cfbcf4e59b54108d04.txt')
+def serve_471cae572a7e45cfbcf4e59b54108d04_file():
+    try:
+        return send_from_directory(app.static_folder, '471cae572a7e45cfbcf4e59b54108d04.txt')
+    except Exception as e:
+        print(traceback.format_exc())
+        return "Internal Server Error", 500
+
 @app.route('/sitemap.xml')
 def serve_sitemap():
     try:
