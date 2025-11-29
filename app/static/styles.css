@@ -307,7 +307,7 @@ input {
     }
 }
 
-Authentication Pages*/
+/* Authentication */
 .auth-box {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -381,7 +381,7 @@ Authentication Pages*/
     font-weight: 500;
 }
 
-Pattern Explanations*/
+/* Pattern Explanations */
 .pattern-explanations {
     background: rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
@@ -402,7 +402,7 @@ Pattern Explanations*/
     margin-bottom: 0.5rem;
 }
 
-About Us*/
+/* About */
 .about-us {
     background: rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
@@ -410,7 +410,7 @@ About Us*/
     margin-top: 2rem;
 }
 
-Pattern Type Grid*/
+/* Pattern Type Grid */
 .pattern-type-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -428,7 +428,7 @@ Pattern Type Grid*/
     margin-bottom: 0.5rem;
 }
 
-Interactive Example*/
+/* Interactive Example */
 .interactive-example {
     margin-top: 1rem;
 }
@@ -460,7 +460,7 @@ Interactive Example*/
     background: darken(--success-colour, 10%);
 }
 
-Real-World Applications*/
+/* Real-World Applications */
 .real-world-applications {
     background: rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
@@ -473,7 +473,7 @@ Real-World Applications*/
     padding-left: 2rem;
 }
 
-Glossary*/
+/* Glossary */
 .glossary {
     background: rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
@@ -601,7 +601,7 @@ Glossary*/
     text-decoration: none;
 }
 
-the Leaderboard*/
+/* Leaderboard */
 .leaderboard-box {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
