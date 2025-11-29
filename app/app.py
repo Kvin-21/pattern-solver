@@ -454,6 +454,18 @@ def game():
 # Game Pattern Generation
 # ─────────────────────────────────────────────────────────────────────────────
 
+def fib(n):
+    """Compute the nth Fibonacci number."""
+    if n <= 0:
+        return 0
+    if n == 1:
+        return 1
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+
+
 GAME_PATTERNS = [
     (lambda x: x, "Linear"),
     (lambda x: x**2, "Square"),
@@ -475,18 +487,6 @@ PATTERN_EXPLANATIONS = {
     "Cubic": "Cubic pattern: Each number is n³ - n²",
     "Fibonacci": "Fibonacci sequence: Each number is the sum of the two preceding numbers",
 }
-
-
-def fib(n):
-    """Compute the nth Fibonacci number."""
-    if n <= 0:
-        return 0
-    if n == 1:
-        return 1
-    a, b = 0, 1
-    for _ in range(2, n + 1):
-        a, b = b, a + b
-    return b
 
 
 def generate_game_pattern(level):

@@ -457,7 +457,7 @@ input {
 }
 
 .interactive-example button:hover {
-    background: darken(--success-colour, 10%);
+    background: #27ae60;
 }
 
 /* Real-World Applications */
