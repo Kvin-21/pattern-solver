@@ -457,7 +457,8 @@ input {
 }
 
 .interactive-example button:hover {
-    background: #27ae60;
+    background: var(--success-colour);
+    filter: brightness(0.9);
 }
 
 /* Real-World Applications */
